@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es2015"
+  
+  }
+}
+
+
+/* Changing the target in CompilerOptions changes the JavaScript that is generated when the TypeScript is compiled. */
