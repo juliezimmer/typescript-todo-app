@@ -1,47 +1,106 @@
-interface IIdGenerator {
-  nextId: number;
+import { Todo, TodoState } from './Model';
+
+export interface ITodoService {
+    add(todo: Todo): Todo;
+    add(todo: string): Todo;
+    clearCompleted(): void;
+    getAll(): Todo[];
+    getById(todoId: number): Todo;
+    toggle(todoId: number): void;
 }
 
-//The ITodoService interface is in theh model.ts file.
-class TodoService implements ITodoService, IIdGenerator {
-  private static _lastId: number = 0;
+let _lastId = 0;
 
-  get NextId() {
-    return TodoService._lastId += 1;
-  }
+function generateTodoId(): number {
+    return _lastId += 1;
+}
 
-  constructor (private todos: Todo[]) {
-  }
-
-  add(todo: Todo): Todo {
-    todo.id = this.nextId;
-    
-    this.todos.push(todo);
-
-    return todo;
-  }
-
-  delete(todoId: number): void {
-    var toDelete = this.getById(todoId);
-    
-    var deletedIndex = this.todos.indexOf(toDelete);
-    
-    this.todos.splice(deletedIndex, 1);
-  }
-
-  getAll(): Todo[]{
-    var clone = JSON.stringify(this.todos);
+function clone<T>(src: T): T {
+    var clone = JSON.stringify(src);
     return JSON.parse(clone);
-  }
+};
 
-  getById(todoId: number): Todo {
-    var filtered = 
-        this.todos.filter(x => x.id == todoId);
-        
-    if( filtered.length ) {
-        return filtered[0];
+
+export default class TodoService implements ITodoService {
+    
+    private todos: Todo[] = [];
+
+    constructor(todos: string[]) {
+        if(todos) {
+            todos.forEach(todo => this.add(todo));
+        }
+    }
+
+    // Accepts a todo name or todo object
+    add(todo: Todo): Todo
+    add(todo: string): Todo
+    add(input): Todo {
+
+        var todo: Todo = {
+            id: generateTodoId(),
+            name: null,
+            state: TodoState.Active
+        };
+
+        if(typeof input === 'string') {
+            todo.name = input;
+        } 
+        else if(typeof input.name === 'string') {
+            todo.name = input.name;
+        } else {
+            throw 'Invalid Todo name!';
+        }
+
+        this.todos.push(todo);
+
+        return todo;
+    };
+
+
+    clearCompleted(): void {
+       
+        this.todos = this.todos.filter(
+            x => x.state == TodoState.Active
+        );
     }
     
-    return null;
-  } 
+
+    getAll(): Todo[] {
+        return clone(this.todos);
+    };
+
+
+    getById(todoId: number): Todo {
+        var todo = this._find(todoId);
+        return clone(todo);
+    };
+    
+    toggle(todoId: number): void {
+
+        var todo = this._find(todoId);
+        
+        if(!todo) return;
+        
+        switch(todo.state) {
+            case TodoState.Active:
+                todo.state = TodoState.Complete;
+                break;
+                
+            case TodoState.Complete:
+                todo.state = TodoState.Active;
+                break;
+        }
+    }
+
+    private _find(todoId: number): Todo {
+        var filtered = this.todos.filter(
+            x => x.id == todoId
+        );
+        
+        if (filtered.length) {
+            return filtered[0];
+        }
+        
+        return null;
+    }
 }

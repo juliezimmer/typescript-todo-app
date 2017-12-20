@@ -1,13 +1,15 @@
-var TodoApp;
-(function (TodoApp) {
-    var Model;
-    (function (Model) {
-        var TodoState;
-        (function (TodoState) {
-            TodoState[TodoState["New"] = 1] = "New";
-            TodoState[TodoState["Active"] = 2] = "Active";
-            TodoState[TodoState["Complete"] = 3] = "Complete";
-            TodoState[TodoState["Deleted"] = 4] = "Deleted";
-        })(TodoState = Model.TodoState || (Model.TodoState = {}));
-    })(Model = TodoApp.Model || (TodoApp.Model = {}));
-})(TodoApp || (TodoApp = {}));
+System.register([], function (exports_1, context_1) {
+    "use strict";
+    var __moduleName = context_1 && context_1.id;
+    var TodoState;
+    return {
+        setters: [],
+        execute: function () {
+            (function (TodoState) {
+                TodoState[TodoState["Active"] = 1] = "Active";
+                TodoState[TodoState["Complete"] = 2] = "Complete";
+            })(TodoState || (TodoState = {}));
+            exports_1("TodoState", TodoState);
+        }
+    };
+});
